@@ -9,9 +9,12 @@ use Tymon\JWTAuth\Exceptions\JWTException;
 use App\Models\User;
 use Tymon\JWTAuth\Facades\JWTAuth;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Controllers\Traits\CheckerTrait;
 
 class AuthController extends Controller
 {
+    use CheckerTrait;
+
     // Create a new User
     public function register(Request $request)
     {
@@ -35,11 +38,12 @@ class AuthController extends Controller
             'password' => bcrypt($request->get('password')),
         ]);
 
+        $this->create_request($user->id, 'Create');
+
         // Return a successful response
         return response()->json([
             'success' => true,
-            'message' => 'User has been created',
-            'data' => $user
+            'message' => 'You have created an account please wait for admin to approve',
         ], Response::HTTP_CREATED);
     }
 
@@ -72,13 +76,36 @@ class AuthController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
+        $is_requested = $this->validate_by_user_id(JWTAuth::user()->id);
+        if (!$is_requested) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Admin has not approved your account yet',
+            ], Response::HTTP_UNAUTHORIZED);
+        }
+
         return response()->json([
             'success' => true,
             'message' => 'You have been logged in',
             'access_token' => $token
-        ]);
+        ], Response::HTTP_OK);
     }
 
     public function logout(Request $request)
-    {}
+    {
+        // Logout user
+        try {
+            JWTAuth::invalidate($request->bearerToken());
+            return response()->json([
+                'success' => true,
+                'message' => 'You have successfully logged out',
+            ]);
+
+        } catch (JWTException $exception) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Sorry, the user cannot be logged out',
+            ], Response::HTTP_INTERNAL_SERVER_ERROR);
+        }
+    }
 }

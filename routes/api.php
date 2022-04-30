@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\AuthController;
+use App\Http\Controllers\API\CheckerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -17,13 +18,14 @@ use App\Http\Controllers\API\AuthController;
 
 // Auth routes
 // Register a new user route
-Route::post('register', [AuthController::class, 'register']);
+Route::post('/register', [AuthController::class, 'register']);
 // Login a user route
-Route::post('login', [AuthController::class, 'login']);
+Route::post('/login', [AuthController::class, 'login']);
 
 // Group routes
 Route::group(['middleware' => ['jwt.verify']], function() {
-    Route::get('logout', [ApiController::class, 'logout']);
+    Route::get('logout', [AuthController::class, 'logout']);
+    Route::get('pending_request', [CheckerController::class, 'get_pending_request']);
 });
 
 // Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
