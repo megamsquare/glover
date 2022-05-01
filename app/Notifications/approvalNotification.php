@@ -11,14 +11,16 @@ class approvalNotification extends Notification
 {
     use Queueable;
 
+    private $project;
+
     /**
      * Create a new notification instance.
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($project)
     {
-        //
+        $this->project = $project;
     }
 
     /**
@@ -29,7 +31,7 @@ class approvalNotification extends Notification
      */
     public function via($notifiable)
     {
-        return ['mail'];
+        return ['mail', 'database'];
     }
 
     /**
@@ -41,9 +43,10 @@ class approvalNotification extends Notification
     public function toMail($notifiable)
     {
         return (new MailMessage)
-                    ->line('The introduction to the notification.')
-                    ->action('Notification Action', url('/'))
-                    ->line('Thank you for using our application!');
+                    ->greeting($this->project['greeting'])
+                    ->line($this->project['body'])
+                    ->action($this->project['actionText'], $this->project['actionURL'])
+                    ->line($this->project['thanks']);
     }
 
     /**
