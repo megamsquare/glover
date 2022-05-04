@@ -16,7 +16,7 @@ class CreateCheckersTable extends Migration
         Schema::create('checkers', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('user_id');
-            $table->enum('request_type', ['Create', 'Edit', 'Delete']);
+            $table->enum('request_type', ['Create', 'Update', 'Delete']);
             $table->timestamps();
 
             $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade');

@@ -7,10 +7,13 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use App\Models\User;
 use Symfony\Component\HttpFoundation\Response;
+use App\Http\Controllers\Traits\CheckerTrait;
 
 class UserController extends Controller
 {
     // User Controller
+
+    use CheckerTrait;
 
     // Update User
     public function update(Request $request, $id)
@@ -37,10 +40,12 @@ class UserController extends Controller
             'password' => bcrypt($request->get('password')),
         ]);
 
+        $this->create_request($user->id, 'Update');
+
         // Return a successful response
         return response()->json([
             'success' => true,
-            'message' => 'User has been updated',
+            'message' => 'User will be updated when admin approves',
             'data' => $user,
             'others' => request()->all()
         ], Response::HTTP_OK);
@@ -51,11 +56,13 @@ class UserController extends Controller
     {
         $user = User::findOrFail($id);
 
-        $user->delete();
+        $this->create_request($user->id, 'Delete');
+
+        // $user->delete();
 
         return response()->json([
             'success' => true,
-            'message' => 'User has been deleted',
+            'message' => 'User will be deleted when admin approves',
             'data' => $user,
             'others' => request()->all()
         ], Response::HTTP_OK);

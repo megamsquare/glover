@@ -35,5 +35,8 @@ trait CheckerTrait
         // If user does not have a pending request, return true
         return true;
     }
+
+    public function approveOrDecline($user_id, $is_approve)
+    {}
 }
 
